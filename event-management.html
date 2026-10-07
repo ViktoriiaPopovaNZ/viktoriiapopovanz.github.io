@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Event Management & SQL Reporting | Viktoriia Popova</title>
+  <meta name="description" content="A SQLite database project covering relational modelling, speaker payment management and SQL financial reporting.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --cream: #F7F5EF;
+      --navy: #022140;
+      --blue: #3B8BEB;
+      --pale: #C4DBF6;
+      --berry: #B23850;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--navy);
+      font-family: Inter, sans-serif;
+      line-height: 1.75;
+    }
+    a { color: inherit; }
+    a:focus-visible, summary:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 5px;
+    }
+    .wrap { width: min(1100px, 90%); margin: auto; }
+    header {
+      padding: 30px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+    .logo {
+      font-family: Manrope, sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+    .logo span { color: var(--berry); }
+    .back { font-size: 14px; text-decoration: none; }
+    .back:hover { color: var(--blue); }
+    .hero { padding: 65px 0 55px; }
+    .eyebrow {
+      color: var(--berry);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+    h1, h2, h3 { font-family: Manrope, sans-serif; }
+    h1 {
+      font-size: clamp(40px, 6vw, 72px);
+      line-height: 1.12;
+      letter-spacing: -.045em;
+      margin: 22px 0;
+      max-width: 950px;
+    }
+    h1 span { color: var(--blue); }
+    .intro { max-width: 730px; font-size: 18px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0; }
+    .tag {
+      border: 1px solid #02214025;
+      border-radius: 30px;
+      padding: 5px 15px;
+      font-size: 12px;
+    }
+    .button {
+      display: inline-block;
+      background: var(--navy);
+      color: white;
+      border-radius: 30px;
+      padding: 12px 24px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .button:hover { background: #154573; }
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid #02214025;
+      border-bottom: 1px solid #02214025;
+      padding: 26px 0;
+      gap: 24px;
+    }
+    .facts strong {
+      display: block;
+      font-family: Manrope, sans-serif;
+      font-size: 28px;
+    }
+    .facts span { font-size: 13px; }
+    section { padding: 48px 0; }
+    h2 {
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.25;
+      letter-spacing: -.03em;
+      margin: 0 0 22px;
+    }
+    h3 { font-size: 21px; line-height: 1.4; }
+    p { margin: 0 0 18px; }
+    .columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+    .panel {
+      background: var(--navy);
+      color: var(--cream);
+      padding: 38px;
+      border-radius: 24px;
+    }
+    .panel h2 { color: var(--pale); }
+    ul { padding-left: 20px; }
+    li { margin-bottom: 10px; }
+    .model {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .model article {
+      padding: 24px;
+      border: 1px solid #02214020;
+      border-radius: 20px;
+      background: #ffffff55;
+    }
+    .model h3 { margin: 0 0 12px; font-size: 17px; }
+    .model p { font-size: 14px; margin: 0; }
+    .query {
+      background: #fff;
+      padding: 32px;
+      border-radius: 24px;
+      margin: 20px 0;
+      border: 1px solid #02214015;
+    }
+    .number { color: var(--berry); font-size: 12px; font-weight: 600; }
+    .table-wrap { overflow-x: auto; margin: 24px 0; }
+    table { border-collapse: collapse; width: 100%; font-size: 14px; }
+    th, td {
+      text-align: left;
+      padding: 13px 16px;
+      border-bottom: 1px solid #02214015;
+    }
+    th { background: #C4DBF655; }
+    .result {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 24px 0;
+    }
+    .result div { background: var(--cream); border-radius: 16px; padding: 18px; }
+    .result strong { display: block; font-size: 22px; }
+    .result span { font-size: 12px; }
+    .negative { color: var(--berry); }
+    details { border-top: 1px solid #02214020; padding-top: 16px; }
+    summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+    pre {
+      overflow-x: auto;
+      padding: 20px;
+      border-radius: 14px;
+      background: var(--navy);
+      color: #e5effa;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+    .note { font-size: 13px; color: #40546a; }
+    .end {
+      background: var(--pale);
+      padding: 36px;
+      border-radius: 24px;
+      margin-bottom: 55px;
+    }
+    footer {
+      padding: 25px 0;
+      border-top: 1px solid #02214020;
+      font-size: 12px;
+    }
+    @media (max-width: 700px) {
+      .hero { padding-top: 35px; }
+      .columns, .model { grid-template-columns: 1fr; }
+      .facts { gap: 12px; }
+      .facts strong { font-size: 23px; }
+      .result { grid-template-columns: 1fr 1fr; }
+      .query, .panel, .end { padding: 24px; }
+      section { padding: 32px 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <a class="logo" href="index.html">VP<span>.</span></a>
+      <a class="back" href="index.html#projects">← Back to projects</a>
+    </header>
+
+    <main>
+      <div class="hero">
+        <div class="eyebrow">SQL & relational databases / 2026</div>
+        <h1>Event management<br><span>& SQL reporting</span></h1>
+        <p class="intro">
+          Connecting event operations, client invoices and speaker payments
+          in a relational database — and turning those records into useful
+          financial reports.
+        </p>
+        <div class="tags">
+          <span class="tag">SQLite</span>
+          <span class="tag">SQL</span>
+          <span class="tag">Relational modelling</span>
+          <span class="tag">Data integrity</span>
+          <span class="tag">Financial reporting</span>
+        </div>
+        <a class="button" href="https://github.com/ViktoriiaPopovaNZ/event-management-sql">
+          View project on GitHub ↗
+        </a>
+      </div>
+
+      <div class="facts">
+        <div><strong>20</strong><span>Application tables</span></div>
+        <div><strong>3</strong><span>Tables in my extension</span></div>
+        <div><strong>2</strong><span>SQL reporting queries</span></div>
+      </div>
+
+      <section class="columns">
+        <div>
+          <h2>The business problem</h2>
+          <p>
+            Summit Event Management Group (SEMG) is the event management
+            scenario used in this academic project. Its operations cover
+            conferences, workshops and private celebrations.
+          </p>
+          <p>
+            The brief described a spreadsheet-based process that had become
+            difficult to manage as events, clients, services and payments grew.
+            The goal was to organise these records in a connected database
+            that supports reporting.
+          </p>
+        </div>
+        <div class="panel">
+          <h2>My contribution</h2>
+          <p>
+            Completed for MBIS623 Data Management at the University of Canterbury.
+            The original ER diagram was supplied in the assignment.
+          </p>
+          <ul>
+            <li>Implemented the relational model in SQLite.</li>
+            <li>Added keys, relationship tables and data constraints.</li>
+            <li>Extended the model for speaker bookings and payments.</li>
+            <li>Wrote and interpreted two financial reporting queries.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>How the data is organised</h2>
+        <p>
+          Primary and foreign keys connect the business entities.
+          Associative tables represent many-to-many relationships, including
+          staff assignments, event services and workshop speakers.
+        </p>
+        <div class="model">
+          <article>
+            <h3>Event operations</h3>
+            <p>Clients, venues and events, supported by staff assignments and event services.</p>
+          </article>
+          <article>
+            <h3>Participation</h3>
+            <p>Attendees and tickets, with workshops, speakers and areas of expertise.</p>
+          </article>
+          <article>
+            <h3>Financial records</h3>
+            <p>Client invoices and payments, plus speaker bookings, invoices and payments.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="columns">
+        <div>
+          <h2>Extending the model</h2>
+          <p>
+            The original model linked speakers to workshops. I added a separate
+            structure to track their event bookings and financial obligations.
+          </p>
+          <p>
+            <strong>Speaker_Booking</strong> records the event, speaker, fee
+            and contract status. <strong>Speaker_Invoice</strong> stores the
+            related invoice. <strong>Speaker_Payment</strong> records payments
+            against that invoice.
+          </p>
+        </div>
+        <div>
+          <h2>Data integrity</h2>
+          <p>
+            The schema uses primary keys, foreign keys, composite keys and
+            NOT NULL, UNIQUE and CHECK constraints. For example, monetary
+            values cannot be negative and service quantities must be positive.
+          </p>
+          <p>
+            The uploaded database passed SQLite's integrity check and
+            foreign-key check, with no foreign-key violations found.
+            Foreign-key enforcement must also be enabled for each connection.
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Two questions answered with SQL</h2>
+
+        <article class="query">
+          <span class="number">01 / PAYMENT TRACKING</span>
+          <h3>Which client invoices have not been fully paid?</h3>
+          <p>
+            The query joins clients, events, invoices and payments, then
+            subtracts the total paid from each invoice amount. A LEFT JOIN
+            keeps invoices even when no payment exists, while COALESCE treats
+            a missing payment total as zero.
+          </p>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Invoice</th><th>Client</th><th>Invoiced</th>
+                  <th>Paid</th><th>Outstanding</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>1014</td><td>Digital NZ</td><td>$10,500</td>
+                  <td>$9,500</td><td>$1,000</td>
+                </tr>
+                <tr>
+                  <td>1015</td><td>Digital NZ</td><td>$2,500</td>
+                  <td>$1,500</td><td>$1,000</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            Both invoices relate to the Multi-Day Digital Business Conference.
+            The report highlights $2,000 in outstanding balances for payment follow-up.
+          </p>
+          <details>
+            <summary>Explore the SQL logic</summary>
+            <pre><code>Invoice.total_amount
+  - COALESCE(SUM(Payment.amount_paid), 0)
+  AS outstanding_amount
+
+-- Group payments by invoice.
+-- Keep only invoices with an unpaid balance.
+HAVING outstanding_amount > 0
+ORDER BY outstanding_amount DESC;</code></pre>
+            <p class="note">Excerpt from the full query available on GitHub.</p>
+          </details>
+        </article>
+
+        <article class="query">
+          <span class="number">02 / FINANCIAL REPORTING</span>
+          <h3>Which event has the lowest financial result?</h3>
+          <p>
+            This query compares invoiced revenue with quoted service costs
+            and booked speaker fees. Each source is aggregated by event
+            before joining, avoiding double counting across multiple records.
+          </p>
+          <p><strong>Lowest result: Natural Beauty Product Launch</strong></p>
+          <div class="result">
+            <div><strong>$3,200</strong><span>Invoiced revenue</span></div>
+            <div><strong>$3,350</strong><span>Quoted service costs</span></div>
+            <div><strong>$4,000</strong><span>Booked speaker fees</span></div>
+            <div><strong class="negative">−$4,150</strong><span>Revenue less selected costs</span></div>
+          </div>
+          <p>
+            Selected costs exceed invoiced revenue in this sample event,
+            flagging it for a review of pricing and budgeting.
+          </p>
+          <details>
+            <summary>Explore the SQL logic</summary>
+            <pre><code>-- Calculate separate totals at event level.
+SELECT event_id, SUM(total_amount)
+FROM Invoice
+GROUP BY event_id;
+
+SELECT event_id, SUM(quoted_cost)
+FROM Event_Service
+GROUP BY event_id;
+
+SELECT event_id, SUM(booking_fee)
+FROM Speaker_Booking
+GROUP BY event_id;
+
+-- Join these totals to Event, then calculate:
+-- invoiced revenue - service costs - speaker fees</code></pre>
+            <p class="note">Illustration of the aggregation approach; the complete query is on GitHub.</p>
+          </details>
+        </article>
+        <p class="note">
+          Results come from the project's sample data. The financial measure
+          includes selected costs only: it is not complete accounting profit
+          or cash received.
+        </p>
+      </section>
+
+      <section class="columns">
+        <div>
+          <h2>What I learned</h2>
+          <p>
+            This project connected relational database implementation with
+            business reporting. It reinforced the importance of choosing the
+            correct aggregation level, handling missing payments and defining
+            financial measures precisely.
+          </p>
+        </div>
+        <div>
+          <h2>Scope & next steps</h2>
+          <p>
+            This is an academic demonstration rather than a production system.
+            Future improvements could include broader operating costs,
+            overdue-payment reporting and additional validation of dates
+            and booking statuses.
+          </p>
+        </div>
+      </section>
+
+      <div class="end">
+        <h2>Explore the project</h2>
+        <p>
+          The SQLite database, reporting queries and instructions are available
+          in the project repository.
+        </p>
+        <a class="button" href="https://github.com/ViktoriiaPopovaNZ/event-management-sql">
+          Open GitHub repository ↗
+        </a>
+      </div>
+    </main>
+
+    <footer>© 2026 Viktoriia Popova</footer>
+  </div>
+</body>
+</html>
